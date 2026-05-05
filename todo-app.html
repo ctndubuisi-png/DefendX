@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do List App</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #todo-list { list-style-type: none; padding: 0; }
+        .completed { text-decoration: line-through; }
+    </style>
+</head>
+<body>
+    <h1>To-Do List App</h1>
+    <input type="text" id="task-input" placeholder="Add a new task" />
+    <button id="add-task-btn">Add Task</button>
+    <button id="clear-completed-btn">Clear Completed</button>
+    <ul id="todo-list"></ul>
+    
+    <script>
+        // Retrieve tasks from local storage
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const todoList = document.getElementById('todo-list');
+        const taskInput = document.getElementById('task-input');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const clearCompletedBtn = document.getElementById('clear-completed-btn');
+
+        function renderTasks() {
+            todoList.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const li = document.createElement('li');
+                li.textContent = task.text;
+                if (task.completed) {
+                    li.classList.add('completed');
+                }
+                li.addEventListener('click', () => toggleTaskCompletion(index));
+                todoList.appendChild(li);
+            });
+        }
+
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            if (taskText !== '') {
+                tasks.push({ text: taskText, completed: false });
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                taskInput.value = '';
+                renderTasks();
+            }
+        }
+
+        function toggleTaskCompletion(index) {
+            tasks[index].completed = !tasks[index].completed;
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            renderTasks();
+        }
+
+        function clearCompletedTasks() {
+            const incompleteTasks = tasks.filter(task => !task.completed);
+            localStorage.setItem('tasks', JSON.stringify(incompleteTasks));
+            renderTasks();
+        }
+
+        addTaskBtn.addEventListener('click', addTask);
+        clearCompletedBtn.addEventListener('click', clearCompletedTasks);
+        renderTasks();
+    </script>
+</body>
+</html>
