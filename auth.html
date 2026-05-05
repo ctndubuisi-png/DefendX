@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Authentication</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@1.35.6/dist/umd/supabase.js"></script>
+</head>
+<body>
+    <h1>Supabase Authentication</h1>
+    <div id="auth">
+        <h2>Sign In</h2>
+        <form id="signInForm">
+            <input type="email" id="signInEmail" placeholder="Email" required />
+            <input type="password" id="signInPassword" placeholder="Password" required />
+            <button type="submit">Sign In</button>
+        </form>
+        <h2>Sign Up</h2>
+        <form id="signUpForm">
+            <input type="email" id="signUpEmail" placeholder="Email" required />
+            <input type="password" id="signUpPassword" placeholder="Password" required />
+            <select id="roleSelection">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+            </select>
+            <button type="submit">Sign Up</button>
+        </form>
+        <button id="googleSignIn">Sign In with Google</button>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        const { createClient } = supabase;
+        const supabaseUrl = 'your_supabase_url'; // Replace with your Supabase URL
+        const supabaseKey = 'your_supabase_anon_key'; // Replace with your Supabase anon key
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        document.getElementById('signInForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signInEmail').value;
+            const password = document.getElementById('signInPassword').value;
+            const { user, session, error } = await supabase.auth.signIn({ email, password });
+            displayMessage(error ? error.message : 'Sign In successful!');
+        });
+
+        document.getElementById('signUpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('signUpEmail').value;
+            const password = document.getElementById('signUpPassword').value;
+            const role = document.getElementById('roleSelection').value;
+            const { user, session, error } = await supabase.auth.signUp({ email, password });
+            if (user) {
+                // You might want to store the role in your database
+                displayMessage('Sign Up successful!');
+            } else {
+                displayMessage(error ? error.message : 'Something went wrong!');
+            }
+        });
+
+        document.getElementById('googleSignIn').addEventListener('click', async () => {
+            const { user, session, error } = await supabase.auth.signIn({ provider: 'google' });
+            displayMessage(error ? error.message : 'Google Sign In successful!');
+        });
+
+        function displayMessage(msg) {
+            document.getElementById('message').innerText = msg;
+        }
+    </script>
+</body>
+</html>
